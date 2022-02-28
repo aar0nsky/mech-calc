@@ -1,0 +1,144 @@
+<html>
+
+<body>
+    <div class="wpb_wrapper">
+        <h4>Mech Calculator</h4>
+        <form id="coilInputForm">
+            <table id="inputTable">
+                <tbody>
+                    <tr>
+                        <th>Input Battery Volts</th>
+                        <td><input type="range" name="volts" id="volts" value="4.2" min="0.1" max="4.2" step="0.1"
+                                style="width:60px;">&nbsp;&nbsp;<span id="voltsValue"></span> volts</td>
+                    </tr>
+                    <tr>
+                        <th>Current Rating of Battery (CDR)</th>
+                        <td><input  type="range" name="currentSlider" id="currentSlider" value="45" min="5" max="60" step="5"
+                                style="width:60px;">&nbsp;&nbsp;<span id="current"></span> amps</td>
+                    </tr>
+                    <tr>
+                        <th>Coil Resistance</th>
+                        <td><input type="range" min="0.1" max="1" value="0.12" step="0.01" class="slider"
+                                id="resistSlider">&nbsp;&nbsp; <span id="resistance"></span></td>
+                        <!-- <input type="number" name="coilResistance" id="coilResistance" value="0.5" min="0.1" max="3.5" step="0.1" style="width:60px;"> -->
+                    </tr>
+                    <tr>
+                        <th>Build Deck Configuration</th>
+                        <td>
+                            <select name="numberOfCoils" id="numberOfCoils">
+                                <option value="1">Single</option>
+                                <option value="2">Dual</option>
+                                <option value="3">Triple</option>
+                                <option value="4">Quadruple</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Vaping Power</th>
+                        <td id="vapingPower"></td>
+                    </tr>
+                    <tr>
+                        <th>Current Drain from Battery</th>
+                        <td id="currentDrainFromBattery"></td>
+                    </tr>
+                    <tr><th></th>
+                        <td><span id="status"></span></td>
+                    </tr>
+                    <!-- <tr>
+                        <td><button type="button" style="background-color:#4398F9; color:white;"
+                                onclick="calculate()">Calculate</button></td>
+                        <td><button type="button" style="background-color:red; color:white"
+                                onclick="resetForm()">Reset</button></td>
+                    </tr> -->
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <script>
+
+        function clearResults() {
+
+
+            // Clear Results
+            resistSlider.innerHTML = "."
+            document.getElementById("currentDrainFromBattery").innerHTML = "."
+            document.getElementById("vapingPower").innerHTML = "."
+            document.getElementById("status").innerHTML = "."
+            document.getElementById("status").style.backgroundColor = "white"
+            document.getElementById("currentDrainFromBattery").style.backgroundColor = "white"
+        }
+
+        function resetForm() {
+
+            document.getElementById("coilInputForm").reset();
+            clearResults();
+        }
+
+        function calculate() {
+
+            self.clearResults();
+
+            // Inputs Build Deck from
+            volts = parseFloat(document.getElementById("volts").value);
+            currentSlider = parseFloat(document.getElementById("currentSlider").value);
+            numberOfCoils = document.getElementById("numberOfCoils").value;
+            coilResistance = document.getElementById("resistSlider").value;
+
+            // Calculations
+            resistanceOfBuildDeck = coilResistance / numberOfCoils
+            currentDrainFromBattery = volts / resistanceOfBuildDeck
+            vapingPower = volts * currentDrainFromBattery
+
+            // Results to web table
+            document.getElementById("resistance").innerHTML = resistanceOfBuildDeck.toFixed(2) + " &#937"
+            document.getElementById("currentDrainFromBattery").innerHTML = currentDrainFromBattery.toFixed(2) + " Amp(s)"
+            document.getElementById("vapingPower").innerHTML = vapingPower.toFixed(2) + " Watt(s)"
+
+
+            if (currentDrainFromBattery > currentSlider) {
+                document.getElementById("status").innerHTML = "DANGER! Battery Overload"
+                document.getElementById("status").style.backgroundColor = "red"
+                document.getElementById("currentDrainFromBattery").style.backgroundColor = "red"
+            } else if (currentDrainFromBattery > (currentSlider * 0.9)) {
+                document.getElementById("status").innerHTML = "ATTENTION! Possible Battery Overload"
+                document.getElementById("status").style.backgroundColor = "pink"
+                document.getElementById("currentDrainFromBattery").style.backgroundColor = "pink"
+            } else {
+                document.getElementById("status").innerHTML = "Your battery should safely deliver this current."
+                document.getElementById("status").style.backgroundColor = "#0F0"
+                document.getElementById("currentDrainFromBattery").style.backgroundColor = "#0F0"
+            }
+        }
+
+        var resistSlider = document.getElementById("resistSlider");
+        var resistance = document.getElementById("resistance");
+        resistance.innerHTML = resistSlider.value;
+        resistSlider.oninput = function () {
+            resistance.innerHTML = this.value;
+            self.calculate();
+        }
+
+        var currSlider = document.getElementById("currentSlider");
+        var current = document.getElementById("current");
+        current.innerHTML = currSlider.value;
+        currSlider.oninput = function () {
+            current.innerHTML = this.value;
+            self.calculate();
+        }
+
+        numberOfCoils.oninput = function () {
+            self.calculate();
+        }
+
+        volts.oninput = function () {
+            voltsValue.innerHTML = this.value;
+            self.calculate();
+        }
+        voltsValue.innerHTML = volts.value;
+
+        self.calculate();
+
+    </script>
+</body>
+
+</html>
